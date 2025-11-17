@@ -3,12 +3,12 @@ from pydantic import BaseModel, EmailStr
 from datetime import datetime
 
 class RegisterRequest(BaseModel):
-    email: EmailStr
+    email: str
     password: str
     full_name: str
 
 class RegisterResponse(BaseModel):
     id: str
-    email: EmailStr
+    email: str
     full_name: str
     created_at: datetime
