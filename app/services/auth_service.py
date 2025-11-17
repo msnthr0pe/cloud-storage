@@ -1,10 +1,14 @@
-from pydantic import EmailStr
+import time
 
-from app.models.auth import RegisterRequest, RegisterResponse
+from sqlalchemy import select
+
+from app.models.auth import RegisterRequest, RegisterResponse, LoginRequest, LoginResponse
 from app.models.user_db import UserDB
 from app.db import SessionLocal
 from sqlalchemy.exc import IntegrityError
-from datetime import datetime
+import jwt
+
+SECRET_KEY = "supersecret"      # для учебного кейса
 
 class AuthService:
     async def register(self, data: RegisterRequest) -> RegisterResponse:
@@ -26,3 +30,22 @@ class AuthService:
             full_name=db_user.full_name,
             created_at=db_user.created_at,
         )
+
+    async def login(self, data: LoginRequest) -> LoginResponse:
+        async with SessionLocal() as session:
+            result = await session.execute(
+                select(UserDB).where(
+                    UserDB.email == data.email,
+                    UserDB.password == data.password
+                )
+            )
+            user = result.scalar_one_or_none()
+            if user is None:
+                raise ValueError("Неверный email или пароль")
+            payload = {
+                "sub": str(user.id),
+                "email": user.email,
+                "exp": int(time.time()) + 3600,
+            }
+            token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
+            return LoginResponse(access_token=token, expires_in=3600)

@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from app.models.auth import RegisterRequest, RegisterResponse
 from app.services.auth_service import AuthService
+from app.models.auth import LoginRequest, LoginResponse
 
 auth_router = APIRouter(prefix="/api/auth", tags=["Authentication"])
 
@@ -11,5 +12,15 @@ async def register_user(request: RegisterRequest):
         return await service.register(request)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:                    # <--- добавлено: ловим все ошибки!
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Internal Server Error: " + str(e))
+
+@auth_router.post("/login", response_model=LoginResponse)
+async def login_user(request: LoginRequest):
+    service = AuthService()
+    try:
+        return await service.login(request)
+    except ValueError as e:
+        raise HTTPException(status_code=401, detail=str(e))
+    except Exception as e:
         raise HTTPException(status_code=500, detail="Internal Server Error: " + str(e))

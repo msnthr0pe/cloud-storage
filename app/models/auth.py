@@ -12,3 +12,11 @@ class RegisterResponse(BaseModel):
     email: str
     full_name: str
     created_at: datetime
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+class LoginResponse(BaseModel):
+    access_token: str
+    expires_in: int
