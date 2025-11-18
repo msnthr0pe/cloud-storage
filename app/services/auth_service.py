@@ -1,16 +1,18 @@
 import time
+from datetime import datetime, timedelta
 
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 
 from app.models.auth import RegisterRequest, RegisterResponse, LoginRequest, LoginResponse
 from app.models.user_db import UserDB
-from app.db import SessionLocal
-from sqlalchemy.exc import IntegrityError
 from app.models.profile_db import ProfileDB
-from app.dependencies import get_current_user
+from app.models.subscription_db import SubscriptionDB
+
+from app.db import SessionLocal
 import jwt
 
-SECRET_KEY = "supersecret"      # для учебного кейса
+SECRET_KEY = "supersecret"  # пример для учебного кейса
 
 class AuthService:
     async def register(self, data: RegisterRequest) -> RegisterResponse:
@@ -27,22 +29,32 @@ class AuthService:
             except IntegrityError:
                 raise ValueError("Пользователь с таким email уже существует")
 
-            # После успешного коммита добавляем профиль
+            # Создаём профиль пользователя
             db_profile = ProfileDB(
-                user_id=db_user.id,  # связь с users.id
+                user_id=db_user.id,
                 storage_used=0,
-                storage_limit=2147483647  # лимит по ТЗ
+                storage_limit=2147483647  # лимит по ТЗ, можно заменить
             )
             session.add(db_profile)
+
+            # Создаём дефолтную подписку
+            subscription = SubscriptionDB(
+                user_id=db_user.id,
+                plan="basic",
+                renewal_date=datetime.utcnow() + timedelta(days=30)
+            )
+            session.add(subscription)
+
+            # Коммитим одну транзакцию с профилем и подпиской
             await session.commit()
             await session.refresh(db_profile)
 
-        return RegisterResponse(
-            id=str(db_user.id),
-            email=db_user.email,
-            full_name=db_user.full_name,
-            created_at=db_user.created_at,
-        )
+            return RegisterResponse(
+                id=str(db_user.id),
+                email=db_user.email,
+                full_name=db_user.full_name,
+                created_at=db_user.created_at,
+            )
 
     async def login(self, data: LoginRequest) -> LoginResponse:
         async with SessionLocal() as session:
