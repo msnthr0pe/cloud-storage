@@ -1,9 +1,6 @@
-# app/models/profile_db.py
 from sqlalchemy import Column, Integer, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
-
 from app.db import Base
-
 
 class ProfileDB(Base):
     __tablename__ = "profiles"
