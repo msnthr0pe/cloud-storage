@@ -1,7 +1,8 @@
 from fastapi import APIRouter, HTTPException
+
+from app.models.auth import LoginRequest, LoginResponse
 from app.models.auth import RegisterRequest, RegisterResponse
 from app.services.auth_service import AuthService
-from app.models.auth import LoginRequest, LoginResponse
 
 auth_router = APIRouter(prefix="/api/auth", tags=["Authentication"])
 

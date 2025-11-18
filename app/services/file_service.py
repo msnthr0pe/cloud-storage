@@ -1,9 +1,9 @@
 # app/services/file_service.py
-import os
 
 from app.db import SessionLocal
 from app.models.file import FileUploadResponse
 from app.models.file_db import FileDB
+from app.dependencies import get_current_user
 
 
 class FileService:

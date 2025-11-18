@@ -7,6 +7,7 @@ from app.models.user_db import UserDB
 from app.db import SessionLocal
 from sqlalchemy.exc import IntegrityError
 from app.models.profile_db import ProfileDB
+from app.dependencies import get_current_user
 import jwt
 
 SECRET_KEY = "supersecret"      # для учебного кейса
@@ -57,7 +58,7 @@ class AuthService:
             payload = {
                 "sub": str(user.id),
                 "email": user.email,
-                "exp": int(time.time()) + 3600,
+                "exp": int(time.time()) + 3600*24,
             }
             token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
-            return LoginResponse(access_token=token, expires_in=3600)
+            return LoginResponse(access_token=token, expires_in=3600*24)

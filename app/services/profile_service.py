@@ -6,6 +6,7 @@ from app.db import SessionLocal
 from app.models.profile_db import ProfileDB
 from app.models.user_db import UserDB
 from app.models.profile import ProfileResponse, ProfileUpdateRequest
+from app.dependencies import get_current_user
 
 
 class ProfileService:
