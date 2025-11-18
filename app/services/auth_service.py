@@ -6,6 +6,7 @@ from app.models.auth import RegisterRequest, RegisterResponse, LoginRequest, Log
 from app.models.user_db import UserDB
 from app.db import SessionLocal
 from sqlalchemy.exc import IntegrityError
+from app.models.profile_db import ProfileDB
 import jwt
 
 SECRET_KEY = "supersecret"      # для учебного кейса
@@ -24,6 +25,17 @@ class AuthService:
                 await session.refresh(db_user)
             except IntegrityError:
                 raise ValueError("Пользователь с таким email уже существует")
+
+            # После успешного коммита добавляем профиль
+            db_profile = ProfileDB(
+                user_id=db_user.id,  # связь с users.id
+                storage_used=0,
+                storage_limit=2147483647  # лимит по ТЗ
+            )
+            session.add(db_profile)
+            await session.commit()
+            await session.refresh(db_profile)
+
         return RegisterResponse(
             id=str(db_user.id),
             email=db_user.email,
