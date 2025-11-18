@@ -1,7 +1,8 @@
 # app/services/file_service.py
+from sqlalchemy import select
 
 from app.db import SessionLocal
-from app.models.file import FileUploadResponse
+from app.models.file import FileUploadResponse, FileDownloadResponse
 from app.models.file_db import FileDB
 from app.dependencies import get_current_user
 
@@ -30,3 +31,13 @@ class FileService:
             size=new_file.size,
             uploaded_at=new_file.uploaded_at,
         )
+
+    async def get_file_name(self, file_id: str):
+        async with SessionLocal() as session:
+            result = await session.execute(
+                select(FileDB).where(FileDB.id == file_id)
+            )
+            file = result.scalar_one_or_none()
+            if file is None:
+                raise ValueError("Файл не найден")
+            return FileDownloadResponse(name=file.name)

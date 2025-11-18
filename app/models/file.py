@@ -7,3 +7,6 @@ class FileUploadResponse(BaseModel):
     name: str
     size: int
     uploaded_at: datetime
+
+class FileDownloadResponse(BaseModel):
+    name: str
