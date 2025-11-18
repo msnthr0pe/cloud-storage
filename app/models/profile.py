@@ -8,3 +8,6 @@ class ProfileResponse(BaseModel):
     storage_used: int
     storage_limit: int
     created_at: datetime
+
+class ProfileUpdateRequest(BaseModel):
+    full_name: str

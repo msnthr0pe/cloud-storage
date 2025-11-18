@@ -1,10 +1,12 @@
 # app/services/profile_service.py
+from sqlalchemy import update
 from sqlalchemy.future import select
 
 from app.db import SessionLocal
 from app.models.profile_db import ProfileDB
 from app.models.user_db import UserDB
-from app.models.profile import ProfileResponse
+from app.models.profile import ProfileResponse, ProfileUpdateRequest
+
 
 class ProfileService:
     async def get_profile(self, user_id: str) -> ProfileResponse:
@@ -23,3 +25,16 @@ class ProfileService:
                 storage_limit=profile.storage_limit,
                 created_at=user.created_at,
             )
+
+    async def update_profile(self, user_id: str, data: ProfileUpdateRequest):
+        async with SessionLocal() as session:
+            # Обновляем поле full_name в UserDB (основная таблица пользователей)
+            result = await session.execute(
+                update(UserDB)
+                .where(UserDB.id == user_id)
+                .values(full_name=data.full_name)
+            )
+            if result.rowcount == 0:
+                raise ValueError("Пользователь не найден")
+            await session.commit()
+
