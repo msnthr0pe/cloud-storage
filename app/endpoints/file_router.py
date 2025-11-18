@@ -27,3 +27,14 @@ async def download_file(id: str, user_id: str = Depends(get_current_user)):
         raise HTTPException(status_code=404, detail=str(e))
     except Exception:
         raise HTTPException(status_code=500, detail="Internal Server Error")
+
+@file_router.delete("/{id}")
+async def delete_file(id: str, user_id: str = Depends(get_current_user)):
+    service = FileService()
+    try:
+        await service.delete_file(id)
+        return {"message": "File deleted successfully"}
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Internal Server Error")

@@ -41,3 +41,14 @@ class FileService:
             if file is None:
                 raise ValueError("Файл не найден")
             return FileDownloadResponse(name=file.name)
+
+    async def delete_file(self, file_id: str):
+        async with SessionLocal() as session:
+            result = await session.execute(
+                select(FileDB).where(FileDB.id == file_id)
+            )
+            file = result.scalar_one_or_none()
+            if file is None:
+                raise ValueError("Файл не найден")
+            await session.delete(file)
+            await session.commit()
