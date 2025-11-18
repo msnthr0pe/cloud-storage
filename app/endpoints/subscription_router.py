@@ -4,7 +4,8 @@ from app.models.subscription import SubscriptionResponse, SubscriptionUpgradeReq
 from app.services.subscription_service import SubscriptionService
 from app.dependencies import get_current_user
 
-subscription_router = APIRouter()
+subscription_router = APIRouter(tags=["Subscription"])
+@subscription_router.get("/api/subscription")
 
 @subscription_router.get("/api/subscription", response_model=SubscriptionResponse)
 async def get_subscription(user_id: str = Depends(get_current_user)):
