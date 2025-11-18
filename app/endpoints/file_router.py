@@ -19,7 +19,7 @@ async def upload_file(
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 @file_router.get("/{id}/download", response_model=FileDownloadResponse)
-async def download_file(id: str, user_id: str = Depends(get_current_user)):
+async def download_file(id: str):
     service = FileService()
     try:
         return await service.get_file_name(id)

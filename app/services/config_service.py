@@ -1,0 +1,20 @@
+import json
+
+from sqlalchemy import select
+
+from app.db import SessionLocal
+from app.models.config_db import ConfigDB
+
+
+class ConfigService:
+    async def get_config(self):
+        async with SessionLocal() as session:
+            config = await session.execute(select(ConfigDB))
+            config = config.scalar_one_or_none()
+            if not config:
+                raise ValueError("Config not found")
+            return {
+                "max_file_size": config.max_file_size,
+                "allowed_file_types": json.loads(config.allowed_file_types),
+                "storage_cleanup_days": config.storage_cleanup_days
+            }
